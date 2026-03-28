@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepBear — UC Berkeley | Medical Biopsy Classification</title>
+    <title>DeepBear — UC Berkeley | Medical Biopsy Analysis</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -629,11 +629,38 @@
         .model-toggle-btn.active svg {
             stroke: var(--bg-primary);
         }
-        .model-content {
+        .model-content, .data-content {
             display: none;
         }
-        .model-content.active {
+        .model-content.active, .data-content.active {
             display: block;
+        }
+        .data-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .data-toggle-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-secondary);
+        }
+        .data-toggle-btn.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+        .data-toggle-btn.active svg {
+            stroke: var(--bg-primary);
         }
 
         /* Segmentation Metrics */
@@ -1337,6 +1364,27 @@
             <h2 class="section-title">Understanding the data</h2>
             <div class="section-line"></div>
         </div>
+
+        <!-- Data Type Toggle -->
+        <div class="model-toggle">
+            <button class="data-toggle-btn active" data-data="classification">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                </svg>
+                Classification
+            </button>
+            <button class="data-toggle-btn" data-data="segmentation">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/>
+                    <path d="M12 12l7-7"/><path d="M12 12l-7 7"/>
+                </svg>
+                Segmentation
+            </button>
+        </div>
+
+        <!-- Classification Data -->
+        <div class="data-content active" id="data-classification">
         <div class="bento-grid bento-grid-data stagger-children">
             <!-- Quick Stats -->
             <div class="card animate-on-scroll">
@@ -1408,6 +1456,164 @@
                     </div>
                 </div>
             </div>
+        </div>
+        </div>
+
+        <!-- Segmentation Data -->
+        <div class="data-content" id="data-segmentation">
+        <div class="bento-grid bento-grid-data stagger-children">
+
+            <!-- Quick Stats -->
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <span class="card-title">Quick stats</span>
+                </div>
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">2,200</div>
+                        <div class="stat-label">Total Images</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Classes (lesion / bg)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">128×128</div>
+                        <div class="stat-label">Native Resolution</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">12%</div>
+                        <div class="stat-label">Avg Lesion Area</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesion Size Distribution -->
+            <div class="card card-tall animate-on-scroll">
+                <div class="card-header">
+                    <span class="card-title">Lesion size distribution</span>
+                    <span class="card-badge amber">Class imbalanced</span>
+                </div>
+                <div style="padding: 8px 0;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <span style="font-size:11px; color:var(--text-muted); width:70px;">0–5%</span>
+                        <div style="flex:1; height:20px; background:var(--bg-card-hover); border-radius:4px; overflow:hidden;">
+                            <div style="width:35%; height:100%; background:var(--accent-green); border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:11px; color:var(--text-secondary); width:35px;">35%</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <span style="font-size:11px; color:var(--text-muted); width:70px;">5–10%</span>
+                        <div style="flex:1; height:20px; background:var(--bg-card-hover); border-radius:4px; overflow:hidden;">
+                            <div style="width:25%; height:100%; background:var(--accent-green); border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:11px; color:var(--text-secondary); width:35px;">25%</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <span style="font-size:11px; color:var(--text-muted); width:70px;">10–20%</span>
+                        <div style="flex:1; height:20px; background:var(--bg-card-hover); border-radius:4px; overflow:hidden;">
+                            <div style="width:22%; height:100%; background:var(--accent-blue); border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:11px; color:var(--text-secondary); width:35px;">22%</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <span style="font-size:11px; color:var(--text-muted); width:70px;">20–30%</span>
+                        <div style="flex:1; height:20px; background:var(--bg-card-hover); border-radius:4px; overflow:hidden;">
+                            <div style="width:12%; height:100%; background:var(--accent-blue); border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:11px; color:var(--text-secondary); width:35px;">12%</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <span style="font-size:11px; color:var(--text-muted); width:70px;">30–44%</span>
+                        <div style="flex:1; height:20px; background:var(--bg-card-hover); border-radius:4px; overflow:hidden;">
+                            <div style="width:6%; height:100%; background:var(--accent-amber); border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:11px; color:var(--text-secondary); width:35px;">6%</span>
+                    </div>
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">Most lesions are small — 60% occupy less than 10% of the image</div>
+            </div>
+
+            <!-- Data Split (Full Width) -->
+            <div class="card card-full animate-on-scroll">
+                <div class="card-header">
+                    <span class="card-title">Data split strategy</span>
+                </div>
+                <div class="pipeline">
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-title">1,800</div>
+                        <div class="pipeline-step-desc">Train (provided)</div>
+                    </div>
+                    <span class="pipeline-arrow">+</span>
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-title">400</div>
+                        <div class="pipeline-step-desc">Val (provided)</div>
+                    </div>
+                    <span class="pipeline-arrow">=</span>
+                    <div class="pipeline-step" style="border-color: var(--accent-green);">
+                        <div class="pipeline-step-title" style="color: var(--accent-green);">2,200</div>
+                        <div class="pipeline-step-desc">All used for training</div>
+                    </div>
+                    <span class="pipeline-arrow">→</span>
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-title">5-Fold CV</div>
+                        <div class="pipeline-step-desc">1760 / 440 per fold</div>
+                    </div>
+                    <span class="pipeline-arrow">→</span>
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-title">200</div>
+                        <div class="pipeline-step-desc">Test (hidden masks)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Properties -->
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <span class="card-title">Image properties</span>
+                </div>
+                <div class="img-props">
+                    <div class="img-prop-main">128×128 native</div>
+                    <div class="img-prop-sub">Upscaled to 256×256 for training</div>
+                    <div class="img-prop-item"><span class="check">✓</span> RGB images (.jpg)</div>
+                    <div class="img-prop-item"><span class="check">✓</span> Binary masks (.png) — values 0 and 255</div>
+                    <div class="img-prop-item"><span class="check">✓</span> 2,200 paired image-mask files</div>
+                    <div class="img-prop-item" style="color:var(--accent-amber)"><span class="note-icon">!</span> 1 empty mask (0% lesion area)</div>
+                    <div class="size-visual">
+                        <span class="size-label outer">256px (train)</span>
+                        <div class="size-visual-inner">
+                            <span class="size-label inner">128px (native)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Challenge -->
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <span class="card-title">Key challenges</span>
+                </div>
+                <div class="quick-stats" style="grid-template-columns: 1fr 1fr;">
+                    <div class="stat-item">
+                        <div class="stat-value" style="font-size:28px; color:var(--accent-amber);">128px</div>
+                        <div class="stat-label">Low resolution — boundary pixels are few and ambiguous</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="font-size:28px; color:var(--accent-amber);">88 : 12</div>
+                        <div class="stat-label">Background : lesion pixel ratio — heavy class imbalance</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="font-size:28px; color:var(--accent-amber);">2,200</div>
+                        <div class="stat-label">Small dataset — high overfitting risk for deep models</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="font-size:28px; color:var(--accent-amber);">0–44%</div>
+                        <div class="stat-label">Lesion size variance — model must handle tiny to large</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
         </div>
     </section>
 
@@ -1551,20 +1757,22 @@
         <!-- Segmentation Content -->
         <div class="model-content" id="model-segmentation">
             <div class="bento-grid bento-grid-model stagger-children">
-                <!-- Segmentation Model Card -->
+
+                <!-- Model Architecture -->
                 <div class="card animate-on-scroll">
                     <div class="card-header">
                         <span class="card-title">Model architecture</span>
-                        <span class="card-badge">ARCUNet</span>
+                        <span class="card-badge">UNet++</span>
                     </div>
                     <div class="model-info">
-                        <div class="model-row"><span class="model-key">Architecture</span><span class="model-value">Attention Residual Conv UNet</span></div>
-                        <div class="model-row"><span class="model-key">Encoder</span><span class="model-value">ResNet34 backbone</span></div>
-                        <div class="model-row"><span class="model-key">Input Size</span><span class="model-value">256 × 256</span></div>
-                        <div class="model-row"><span class="model-key">Output</span><span class="model-value">Binary mask (lesion/bg)</span></div>
-                        <div class="model-row"><span class="model-key">Loss</span><span class="model-value">BCE + Dice</span></div>
-                        <div class="model-row"><span class="model-key">Validation</span><span class="model-value">5-Fold CV</span></div>
-                        <div class="model-row"><span class="model-key">Ensemble</span><span class="model-value">Mean of 5 folds</span></div>
+                        <div class="model-row"><span class="model-key">Architecture</span><span class="model-value">UNet++ (nested skip connections)</span></div>
+                        <div class="model-row"><span class="model-key">Encoder</span><span class="model-value">EfficientNet-B4 (ImageNet pretrained)</span></div>
+                        <div class="model-row"><span class="model-key">Decoder Attention</span><span class="model-value">SCSE (channel + spatial)</span></div>
+                        <div class="model-row"><span class="model-key">Input Size</span><span class="model-value">256 × 256 (from 128² native)</span></div>
+                        <div class="model-row"><span class="model-key">Output</span><span class="model-value">Binary mask (lesion / background)</span></div>
+                        <div class="model-row"><span class="model-key">Parameters</span><span class="model-value">~21 million</span></div>
+                        <div class="model-row"><span class="model-key">Validation</span><span class="model-value">5-Fold Cross-Validation</span></div>
+                        <div class="model-row"><span class="model-key">Inference</span><span class="model-value">5-fold ensemble + 16× TTA</span></div>
                     </div>
                 </div>
 
@@ -1576,59 +1784,125 @@
                     </div>
                     <div class="seg-metrics">
                         <div class="seg-metric-big">
-                            <div class="seg-metric-value" id="segIoU">—</div>
-                            <div class="seg-metric-label">Mean IoU</div>
-                            <div class="seg-metric-desc">Intersection over Union</div>
+                            <div class="seg-metric-value" id="segIoU">87.7%</div>
+                            <div class="seg-metric-label">Mean IoU (fg)</div>
+                            <div class="seg-metric-desc">Foreground Intersection over Union</div>
                         </div>
                         <div class="seg-metric-big">
-                            <div class="seg-metric-value" id="segDice">—</div>
-                            <div class="seg-metric-label">Dice Coefficient</div>
-                            <div class="seg-metric-desc">F1 score for segmentation</div>
+                            <div class="seg-metric-value" id="segDice">93.1%</div>
+                            <div class="seg-metric-label">Mean IoU (fg+bg)</div>
+                            <div class="seg-metric-desc">Averaged across both classes</div>
                         </div>
                         <div class="seg-metric-small">
-                            <span class="seg-metric-small-label">Precision</span>
-                            <span class="seg-metric-small-value" id="segPrecision">—</span>
+                            <span class="seg-metric-small-label">Per-fold CV IoU (avg)</span>
+                            <span class="seg-metric-small-value">81.13%</span>
                         </div>
                         <div class="seg-metric-small">
-                            <span class="seg-metric-small-label">Recall</span>
-                            <span class="seg-metric-small-value" id="segRecall">—</span>
+                            <span class="seg-metric-small-label">Fold 0 / 1 / 2 / 3 / 4</span>
+                            <span class="seg-metric-small-value">81.4 / 81.4 / 80.5 / 81.3 / 81.0</span>
                         </div>
-                    </div>
-                    <div class="seg-metric-note">
-                        <span class="note-icon">ℹ</span>
-                        Metrics pending from segmentation team
+                        <div class="seg-metric-small">
+                            <span class="seg-metric-small-label">Training images</span>
+                            <span class="seg-metric-small-value">2,200 (all available)</span>
+                        </div>
+                        <div class="seg-metric-small">
+                            <span class="seg-metric-small-label">Predictions per pixel</span>
+                            <span class="seg-metric-small-value">80 (5 models × 16 TTA)</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Pipeline -->
                 <div class="card animate-on-scroll">
                     <div class="card-header">
-                        <span class="card-title">Segmentation pipeline</span>
+                        <span class="card-title">Inference pipeline</span>
                     </div>
                     <div class="pipeline">
                         <div class="pipeline-step">
-                            <div class="pipeline-step-title">Input 256²</div>
-                            <div class="pipeline-step-desc">Raw patch</div>
+                            <div class="pipeline-step-title">Input 128²</div>
+                            <div class="pipeline-step-desc">Biopsy image</div>
+                        </div>
+                        <span class="pipeline-arrow">→</span>
+                        <div class="pipeline-step">
+                            <div class="pipeline-step-title">Resize 256²</div>
+                            <div class="pipeline-step-desc">Bilinear upscale</div>
                         </div>
                         <span class="pipeline-arrow">→</span>
                         <div class="pipeline-step">
                             <div class="pipeline-step-title">Normalize</div>
-                            <div class="pipeline-step-desc">ImageNet stats</div>
+                            <div class="pipeline-step-desc">ImageNet μ, σ</div>
                         </div>
                         <span class="pipeline-arrow">→</span>
                         <div class="pipeline-step">
-                            <div class="pipeline-step-title">ARCUNet</div>
-                            <div class="pipeline-step-desc">5-fold ensemble</div>
+                            <div class="pipeline-step-title">5× UNet++</div>
+                            <div class="pipeline-step-desc">Fold ensemble</div>
                         </div>
                         <span class="pipeline-arrow">→</span>
                         <div class="pipeline-step">
-                            <div class="pipeline-step-title">Threshold</div>
-                            <div class="pipeline-step-desc">σ > 0.5</div>
+                            <div class="pipeline-step-title">16× TTA</div>
+                            <div class="pipeline-step-desc">Flip + rotate</div>
                         </div>
                         <span class="pipeline-arrow">→</span>
                         <div class="pipeline-step">
-                            <div class="pipeline-step-title">Binary Mask</div>
-                            <div class="pipeline-step-desc">Output</div>
+                            <div class="pipeline-step-title">Average</div>
+                            <div class="pipeline-step-desc">80 predictions</div>
+                        </div>
+                        <span class="pipeline-arrow">→</span>
+                        <div class="pipeline-step">
+                            <div class="pipeline-step-title">p > 0.5</div>
+                            <div class="pipeline-step-desc">Binary mask</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Strategy -->
+                <div class="card animate-on-scroll">
+                    <div class="card-header">
+                        <span class="card-title">Training strategy</span>
+                    </div>
+                    <div class="model-info">
+                        <div class="model-row"><span class="model-key">Phase 1 (ep 1-60)</span><span class="model-value">BCE + Dice loss — stable convergence</span></div>
+                        <div class="model-row"><span class="model-key">Phase 2 (ep 61-80)</span><span class="model-value">Lovász loss — directly optimizes IoU</span></div>
+                        <div class="model-row"><span class="model-key">Optimizer</span><span class="model-value">AdamW (lr=1e-3, wd=1e-4)</span></div>
+                        <div class="model-row"><span class="model-key">Scheduler</span><span class="model-value">Cosine Annealing → 1e-6</span></div>
+                        <div class="model-row"><span class="model-key">Batch Size</span><span class="model-value">64</span></div>
+                        <div class="model-row"><span class="model-key">Grad Clipping</span><span class="model-value">max_norm = 1.0</span></div>
+                    </div>
+                </div>
+
+                <!-- Key Design Decisions -->
+                <div class="card animate-on-scroll">
+                    <div class="card-header">
+                        <span class="card-title">Key design decisions</span>
+                    </div>
+                    <div class="decisions-list">
+                        <div class="decision-row">
+                            <span class="decision-check">✓</span>
+                            <div class="decision-content">
+                                <div class="decision-name">Two-phase loss strategy</div>
+                                <div class="decision-desc">BCE+Dice for stable early training, then Lovász to directly maximize the competition metric (IoU)</div>
+                            </div>
+                        </div>
+                        <div class="decision-row">
+                            <span class="decision-check">✓</span>
+                            <div class="decision-content">
+                                <div class="decision-name">EfficientNet-B4 over B5/B6/B7</div>
+                                <div class="decision-desc">Tested B0-B7, ResNet, ConvNeXt. B4 was the sweet spot — larger models overfit on 128px images</div>
+                            </div>
+                        </div>
+                        <div class="decision-row">
+                            <span class="decision-check">✓</span>
+                            <div class="decision-content">
+                                <div class="decision-name">Train on all 2,200 images</div>
+                                <div class="decision-desc">Used 5-fold CV for validation estimates while maximizing training data for the final submission</div>
+                            </div>
+                        </div>
+                        <div class="decision-row">
+                            <span class="decision-check">✓</span>
+                            <div class="decision-content">
+                                <div class="decision-name">No mixed precision (float32)</div>
+                                <div class="decision-desc">AMP caused training instability with sigmoid+BCE — switching to float32 eliminated oscillation</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1651,6 +1925,7 @@
                         <span class="hf-file">fold2_best.pth</span>
                         <span class="hf-file">fold3_best.pth</span>
                         <span class="hf-file">fold4_best.pth</span>
+                        <span class="hf-file">segment.py</span>
                     </div>
                 </div>
             </div>
@@ -2250,6 +2525,22 @@
         renderEntropy();
         renderAccuracy();
         renderConfusion();
+
+        // ========================================
+        // DATA TOGGLE (Classification / Segmentation)
+        // ========================================
+        document.querySelectorAll('.data-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.data-toggle-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.data-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('data-' + btn.dataset.data).classList.add('active');
+                document.getElementById('data-' + btn.dataset.data).querySelectorAll('.animate-on-scroll').forEach(el => {
+                    el.classList.remove('visible');
+                    setTimeout(() => observer.observe(el), 50);
+                });
+            });
+        });
 
         // ========================================
         // MODEL TOGGLE (Classification / Segmentation)
