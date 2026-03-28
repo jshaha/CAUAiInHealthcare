@@ -2353,7 +2353,9 @@
             uploadZone.classList.remove('has-image');
             analyzeBtn.disabled = true;
             hideError();
-            document.getElementById('resultsContent').style.display = 'none';
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.style.display = 'none';
+            resultsContent.classList.remove('visible');
             document.getElementById('resultsPlaceholder').style.display = '';
         }
 
@@ -2390,7 +2392,9 @@
 
         function showUnifiedResults(data) {
             document.getElementById('resultsPlaceholder').style.display = 'none';
-            document.getElementById('resultsContent').style.display = 'flex';
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.style.display = '';
+            resultsContent.classList.add('visible');
 
             const info = CLASS_INFO[data.predicted_class];
             const confPct = Math.round(data.confidence * 100);
