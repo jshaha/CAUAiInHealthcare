@@ -2273,6 +2273,7 @@
         // UNIFIED UPLOAD & ANALYSIS
         // ========================================
         let currentImage = null;
+        let currentFileName = null;
         const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
         const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 
@@ -2336,6 +2337,7 @@
             };
             reader.onload = e => {
                 currentImage = e.target.result;
+                currentFileName = file.name;
                 previewImg.src = currentImage;
                 uploadContent.style.display = 'none';
                 uploadPreview.classList.add('visible');
@@ -2347,6 +2349,7 @@
 
         function clearUpload() {
             currentImage = null;
+            currentFileName = null;
             fileInput.value = '';
             uploadContent.style.display = '';
             uploadPreview.classList.remove('visible');
@@ -2456,15 +2459,14 @@
                 });
             }, 100);
 
-            // Segmentation - use sample mask
-            const sampleId = data.sampleId;
-            const sampleImg = `samples/images/${sampleId}.jpg`;
-            const sampleMask = `samples/masks/${sampleId}.png`;
+            // Segmentation - use uploaded image and matching mask
+            const baseName = currentFileName ? currentFileName.replace(/\.[^/.]+$/, '') : data.sampleId;
+            const maskPath = `samples/masks/${baseName}.png`;
 
-            document.getElementById('segOriginal').src = sampleImg;
-            document.getElementById('segMask').src = sampleMask;
-            document.getElementById('segOverlayBase').src = sampleImg;
-            document.getElementById('segOverlayMask').src = sampleMask;
+            document.getElementById('segOriginal').src = currentImage;
+            document.getElementById('segMask').src = maskPath;
+            document.getElementById('segOverlayBase').src = currentImage;
+            document.getElementById('segOverlayMask').src = maskPath;
         }
 
         // Segmentation view toggle
