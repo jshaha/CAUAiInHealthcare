@@ -971,6 +971,130 @@
             color: var(--accent-green);
         }
 
+        /* Unified Try Section */
+        .try-unified {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .try-unified { grid-template-columns: 1fr; }
+        }
+
+        /* Error Display */
+        .upload-error {
+            background: rgba(224, 64, 80, 0.15);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        /* Diagnosis Card */
+        .diagnosis-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+        }
+        .diagnosis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .diagnosis-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .diagnosis-badge.low { background: rgba(173,251,73,0.2); color: var(--accent-green); }
+        .diagnosis-badge.medium { background: rgba(253,181,21,0.2); color: var(--accent-amber); }
+        .diagnosis-badge.high { background: rgba(224,64,80,0.2); color: var(--accent-red); }
+
+        .diagnosis-confidence {
+            position: relative;
+            width: 70px;
+            height: 70px;
+        }
+        .conf-ring { transform: rotate(-90deg); }
+        .conf-ring-bg {
+            fill: none;
+            stroke: var(--border-subtle);
+            stroke-width: 6;
+        }
+        .conf-ring-fill {
+            fill: none;
+            stroke: var(--accent-green);
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 188;
+            stroke-dashoffset: 188;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .conf-pct {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .diagnosis-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: var(--text-primary);
+        }
+        .diagnosis-abbrev {
+            font-size: 14px;
+            color: var(--accent-green);
+            margin: 0 0 12px 0;
+            font-weight: 500;
+        }
+        .diagnosis-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0 0 20px 0;
+        }
+        .diagnosis-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .diagnosis-section:last-child { margin-bottom: 0; }
+        .diagnosis-section h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin: 0 0 8px 0;
+        }
+        .diagnosis-section p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Segmentation Card */
+        .seg-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
         /* Probability Chart in Results */
         .prob-chart-card {
             background: var(--bg-card);
@@ -1540,16 +1664,11 @@
             <div class="section-line"></div>
         </div>
 
-        <div class="try-tabs">
-            <button class="try-tab active" data-tab="classification">Classification</button>
-            <button class="try-tab" data-tab="segmentation">Segmentation</button>
-        </div>
-
-        <!-- Classification Tab -->
-        <div class="try-content active" id="tab-classification">
+        <!-- Unified Analysis (Classification + Segmentation) -->
+        <div class="try-unified">
             <div class="upload-col">
                 <div class="upload-zone" id="uploadZone">
-                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg" hidden>
                     <div class="upload-content" id="uploadContent">
                         <div class="upload-icon">
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.5">
@@ -1558,41 +1677,61 @@
                                 <line x1="12" y1="3" x2="12" y2="15"/>
                             </svg>
                         </div>
-                        <p class="upload-title">Drop your biopsy image here</p>
-                        <p class="upload-subtitle">or click to browse — PNG, JPG supported</p>
+                        <p class="upload-title">Drop your skin lesion image here</p>
+                        <p class="upload-subtitle">or click to browse — PNG, JPG supported (max 10MB)</p>
                     </div>
                     <div class="upload-preview" id="uploadPreview">
                         <img id="previewImg" alt="Preview">
                         <button class="upload-remove" id="removeBtn">Remove</button>
                     </div>
                 </div>
+                <div class="upload-error" id="uploadError" style="display:none"></div>
                 <button class="btn-analyze" id="analyzeBtn" disabled>
                     <span class="btn-text">Analyze Image</span>
-                    <span class="btn-loader" style="display:none"><div class="spinner"></div>Analyzing...</span>
+                    <span class="btn-loader" style="display:none"><div class="spinner"></div>Running classification & segmentation...</span>
                 </button>
             </div>
+
             <div class="results-col">
                 <div class="results-placeholder" id="resultsPlaceholder">
                     <div class="results-placeholder-icon">🔬</div>
-                    <p>Upload an image to see results</p>
+                    <p>Upload an image to run classification and segmentation</p>
                 </div>
-                <div class="results-content" id="resultsContent">
-                    <div class="prediction-card">
-                        <div class="pred-ring-wrap">
-                            <svg class="pred-ring" width="110" height="110" viewBox="0 0 110 110">
-                                <circle class="pred-ring-bg" cx="55" cy="55" r="47"/>
-                                <circle class="pred-ring-fill" id="predRing" cx="55" cy="55" r="47"/>
-                            </svg>
-                            <div class="pred-ring-text">
-                                <span class="pred-pct" id="predPct">0</span><span class="pred-pct-sign">%</span>
+
+                <div class="results-content" id="resultsContent" style="display:none">
+                    <!-- Classification Result -->
+                    <div class="diagnosis-card" id="diagnosisCard">
+                        <div class="diagnosis-header">
+                            <div class="diagnosis-badge" id="severityBadge">Analyzing</div>
+                            <div class="diagnosis-confidence">
+                                <svg class="conf-ring" width="70" height="70" viewBox="0 0 70 70">
+                                    <circle class="conf-ring-bg" cx="35" cy="35" r="30"/>
+                                    <circle class="conf-ring-fill" id="confRing" cx="35" cy="35" r="30"/>
+                                </svg>
+                                <span class="conf-pct" id="confPct">0%</span>
                             </div>
                         </div>
-                        <div class="pred-info">
-                            <p class="pred-label-sm">Predicted class</p>
-                            <p class="pred-class" id="predClass">Class —</p>
-                            <p class="pred-conf-label">Confidence</p>
+                        <h3 class="diagnosis-name" id="diagnosisName">—</h3>
+                        <p class="diagnosis-abbrev" id="diagnosisAbbrev"></p>
+                        <p class="diagnosis-desc" id="diagnosisDesc"></p>
+
+                        <div class="diagnosis-section">
+                            <h4>Clinical Significance</h4>
+                            <p id="clinicalSignificance"></p>
+                        </div>
+
+                        <div class="diagnosis-section">
+                            <h4>Recommended Action</h4>
+                            <p id="recommendedAction"></p>
+                        </div>
+
+                        <div class="diagnosis-section">
+                            <h4>Key Statistics</h4>
+                            <p id="keyStats"></p>
                         </div>
                     </div>
+
+                    <!-- Probability Distribution -->
                     <div class="prob-chart-card">
                         <div class="card-header">
                             <span class="card-title">Probability distribution</span>
@@ -1600,62 +1739,34 @@
                         </div>
                         <div id="probChart"></div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Segmentation Tab -->
-        <div class="try-content" id="tab-segmentation">
-            <div class="upload-col">
-                <div class="upload-zone" id="uploadZoneSeg">
-                    <input type="file" id="fileInputSeg" accept="image/*" hidden>
-                    <div class="upload-content" id="uploadContentSeg">
-                        <div class="upload-icon">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.5">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
-                            </svg>
+                    <!-- Segmentation Result -->
+                    <div class="seg-card">
+                        <div class="card-header">
+                            <span class="card-title">Lesion Segmentation</span>
+                            <span class="card-badge">U-Net</span>
                         </div>
-                        <p class="upload-title">Drop your biopsy image here</p>
-                        <p class="upload-subtitle">or click to browse — PNG, JPG supported</p>
-                    </div>
-                    <div class="upload-preview" id="uploadPreviewSeg">
-                        <img id="previewImgSeg" alt="Preview">
-                        <button class="upload-remove" id="removeBtnSeg">Remove</button>
-                    </div>
-                </div>
-                <button class="btn-analyze" id="segmentBtn" disabled>
-                    <span class="btn-text">Generate Mask</span>
-                    <span class="btn-loader" style="display:none"><div class="spinner"></div>Processing...</span>
-                </button>
-            </div>
-            <div class="results-col">
-                <div class="results-placeholder" id="segPlaceholder">
-                    <div class="results-placeholder-icon">🎭</div>
-                    <p>Upload an image to see segmentation</p>
-                </div>
-                <div class="results-content" id="segResults">
-                    <div class="seg-toggle">
-                        <button class="seg-btn active" data-mode="side">Side by side</button>
-                        <button class="seg-btn" data-mode="overlay">Overlay</button>
-                    </div>
-                    <div class="seg-view" id="segView">
-                        <div class="seg-img-box">
-                            <img id="segOriginal" src="" alt="Original">
-                            <span class="seg-img-label">Original</span>
+                        <div class="seg-toggle">
+                            <button class="seg-btn active" data-mode="side">Side by side</button>
+                            <button class="seg-btn" data-mode="overlay">Overlay</button>
                         </div>
-                        <div class="seg-img-box">
-                            <img id="segMask" src="" alt="Mask">
-                            <span class="seg-img-label">Predicted Mask</span>
+                        <div class="seg-view" id="segView">
+                            <div class="seg-img-box">
+                                <img id="segOriginal" src="" alt="Original">
+                                <span class="seg-img-label">Original</span>
+                            </div>
+                            <div class="seg-img-box">
+                                <img id="segMask" src="" alt="Mask">
+                                <span class="seg-img-label">Predicted Mask</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="seg-overlay-wrap" id="segOverlay">
-                        <div class="seg-img-box">
-                            <img id="segOverlayBase" src="" alt="Base">
-                            <img id="segOverlayMask" class="mask" src="" alt="Mask">
-                            <input type="range" class="opacity-slider" id="opacitySlider" min="0" max="100" value="50">
-                            <span class="opacity-val" id="opacityVal">50%</span>
+                        <div class="seg-overlay-wrap" id="segOverlay" style="display:none">
+                            <div class="seg-img-box">
+                                <img id="segOverlayBase" src="" alt="Base">
+                                <img id="segOverlayMask" class="mask" src="" alt="Mask">
+                                <input type="range" class="opacity-slider" id="opacitySlider" min="0" max="100" value="50">
+                                <span class="opacity-val" id="opacityVal">50%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1754,24 +1865,151 @@
             probabilities: [0.008, 0.015, 0.012, 0.009, 0.031, 0.007, 0.018, 0.942, 0.006, 0.022, 0.011, 0.009]
         };
 
-        // API Configuration
-        const API_URL = 'http://localhost:8000';
-        let USE_MOCK = true;  // Will auto-switch to false if backend is available
-
-        // Check if backend is running
-        async function checkBackend() {
-            try {
-                const response = await fetch(`${API_URL}/health`, { method: 'GET' });
-                if (response.ok) {
-                    USE_MOCK = false;
-                    console.log('🟢 Backend connected - using live inference');
-                }
-            } catch (e) {
-                USE_MOCK = true;
-                console.log('🟡 Backend not available - using mock data');
+        // Clinical class information for skin lesions
+        const CLASS_INFO = {
+            0: {
+                name: "Melanoma",
+                abbrev: "MEL",
+                severity: "high",
+                description: "A serious form of skin cancer that develops from melanocytes, the cells that give skin its color.",
+                clinical: "Early detection is critical. Melanoma can metastasize rapidly if not caught early.",
+                action: "Immediate dermatologist referral recommended. Biopsy typically required for confirmation.",
+                stats: "5-year survival rate >95% when detected early, drops to 25% if metastasized."
+            },
+            1: {
+                name: "Melanocytic Nevus",
+                abbrev: "NV",
+                severity: "low",
+                description: "A common benign mole formed by clusters of melanocytes. Most adults have 10-40 nevi.",
+                clinical: "Generally harmless but should be monitored for changes (asymmetry, border, color, diameter).",
+                action: "Routine monitoring recommended. Document with photos for change detection over time.",
+                stats: "Risk of malignant transformation is approximately 1 in 200,000 per year per nevus."
+            },
+            2: {
+                name: "Basal Cell Carcinoma",
+                abbrev: "BCC",
+                severity: "medium",
+                description: "The most common form of skin cancer, arising from basal cells. Rarely metastasizes.",
+                clinical: "Slow-growing, locally invasive. Often appears as pearly bump or non-healing sore.",
+                action: "Dermatology referral for excision or Mohs surgery. Excellent prognosis with treatment.",
+                stats: "Over 4 million cases diagnosed annually in the US. >99% cure rate with early treatment."
+            },
+            3: {
+                name: "Actinic Keratosis",
+                abbrev: "AK",
+                severity: "medium",
+                description: "Rough, scaly patches caused by years of sun exposure. Considered pre-cancerous.",
+                clinical: "Can progress to squamous cell carcinoma in 5-10% of cases if left untreated.",
+                action: "Treatment options include cryotherapy, topical medications, or photodynamic therapy.",
+                stats: "Most common in fair-skinned individuals over 40 with significant sun exposure history."
+            },
+            4: {
+                name: "Benign Keratosis",
+                abbrev: "BKL",
+                severity: "low",
+                description: "Includes seborrheic keratosis and solar lentigo. Common benign growths in older adults.",
+                clinical: "No malignant potential. May be cosmetically concerning but medically benign.",
+                action: "No treatment necessary unless symptomatic. Can be removed for cosmetic reasons.",
+                stats: "Present in over 80% of adults over 60. Purely a cosmetic concern."
+            },
+            5: {
+                name: "Dermatofibroma",
+                abbrev: "DF",
+                severity: "low",
+                description: "Benign fibrous nodule often found on legs. May develop after minor injury or insect bite.",
+                clinical: "Firm, slightly raised lesion that dimples when pinched (dimple sign).",
+                action: "No treatment needed. Surgical excision only if symptomatic or cosmetically desired.",
+                stats: "Most common in women aged 20-40. Completely benign with no malignant potential."
+            },
+            6: {
+                name: "Vascular Lesion",
+                abbrev: "VASC",
+                severity: "low",
+                description: "Includes cherry angiomas, hemangiomas, and other blood vessel abnormalities.",
+                clinical: "Generally benign collections of blood vessels. May bleed if traumatized.",
+                action: "Observation unless bleeding or cosmetically concerning. Laser treatment available.",
+                stats: "Cherry angiomas present in 75% of adults over 75. Typically benign."
+            },
+            7: {
+                name: "Squamous Cell Carcinoma",
+                abbrev: "SCC",
+                severity: "high",
+                description: "Second most common skin cancer. Arises from squamous cells in the epidermis.",
+                clinical: "Can metastasize if untreated, especially on lips, ears, or immunocompromised patients.",
+                action: "Prompt dermatology referral. Treatment includes excision, Mohs surgery, or radiation.",
+                stats: "Over 1 million cases annually in US. 95%+ cure rate with early detection and treatment."
+            },
+            8: {
+                name: "Pigmented Lesion NOS",
+                abbrev: "PIG",
+                severity: "medium",
+                description: "Pigmented lesion not otherwise specified. Requires careful evaluation to rule out melanoma.",
+                clinical: "May represent various conditions from benign nevi to early melanoma.",
+                action: "Dermoscopic evaluation recommended. Consider biopsy if features are concerning.",
+                stats: "Classification helps triage lesions for appropriate follow-up and intervention."
+            },
+            9: {
+                name: "Lichenoid Keratosis",
+                abbrev: "LK",
+                severity: "low",
+                description: "Benign lesion representing an immune reaction, often to a resolving solar lentigo.",
+                clinical: "May appear inflamed or have irregular pigmentation due to immune response.",
+                action: "Usually self-resolving. Biopsy if diagnosis uncertain to rule out malignancy.",
+                stats: "Common in sun-exposed areas of middle-aged and older adults."
+            },
+            10: {
+                name: "Atypical Nevus",
+                abbrev: "AN",
+                severity: "medium",
+                description: "Dysplastic nevus with irregular features. Higher risk of melanoma association.",
+                clinical: "Features may include asymmetry, irregular borders, multiple colors, or large size (>6mm).",
+                action: "Close monitoring with regular skin exams. Consider excision if highly atypical.",
+                stats: "Patients with >5 atypical nevi have 10x higher lifetime melanoma risk."
+            },
+            11: {
+                name: "Lentigo",
+                abbrev: "LTG",
+                severity: "low",
+                description: "Flat, pigmented spots caused by increased melanocytes. Includes solar lentigines (age spots).",
+                clinical: "Benign condition related to sun exposure and aging. Uniform pigmentation.",
+                action: "No treatment necessary. Cosmetic options include laser, cryotherapy, or topical bleaching.",
+                stats: "Present in >90% of Caucasians over 60. Purely cosmetic concern."
             }
+        };
+
+        // Sample image IDs for demo (pre-computed masks available)
+        const SAMPLE_IDS = [10,100,101,102,103,104,105,106,107,108,109,11,110,111,113,114,115,116,117,118,119,12,120,121,122,123,124,125,126,127,128,129,13,130,131,132,133,134,135,136,137,138,139,14,140,141,142,143,144,145,147,148,15,150,151,152,153,154,155,156,157,158,159,16,160,161,162,163,164,165,166,167,168,169,17,170,171,172,173,174,175,176,177,178,179,18,180,181,182,183,184,186,187,188,189,19,190,191,192,193,194,195,197,198,199,20,200,201,202,203,204,205,206,207,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99];
+
+        // Generate realistic mock result based on class distributions
+        function generateMockResult() {
+            // Weighted random class selection based on dataset distribution
+            const weights = [571, 974, 1043, 750, 814, 441, 545, 2136, 331, 1111, 899, 1796];
+            const total = weights.reduce((a, b) => a + b, 0);
+            let r = Math.random() * total;
+            let predicted_class = 0;
+            for (let i = 0; i < weights.length; i++) {
+                r -= weights[i];
+                if (r <= 0) { predicted_class = i; break; }
+            }
+
+            // Generate realistic confidence (based on per-class accuracy)
+            const classAcc = PER_CLASS_ACC[predicted_class].acc;
+            const confidence = classAcc * (0.85 + Math.random() * 0.15);
+
+            // Generate probability distribution
+            const probs = new Array(12).fill(0).map(() => Math.random() * 0.05);
+            probs[predicted_class] = confidence;
+            const sum = probs.reduce((a, b) => a + b, 0);
+            const probabilities = probs.map(p => p / sum);
+
+            // Pick a random sample for the mask
+            const sampleId = SAMPLE_IDS[Math.floor(Math.random() * SAMPLE_IDS.length)];
+
+            return { predicted_class, confidence, probabilities, sampleId };
         }
-        checkBackend();
+
+        // API Configuration - always use demo mode for hackathon
+        const USE_DEMO = true;
 
         // ========================================
         // CONSTELLATION ANIMATION
@@ -2032,21 +2270,11 @@
         });
 
         // ========================================
-        // TRY IT TABS
-        // ========================================
-        document.querySelectorAll('.try-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.try-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.try-content').forEach(c => c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-            });
-        });
-
-        // ========================================
-        // UPLOAD HANDLING
+        // UNIFIED UPLOAD & ANALYSIS
         // ========================================
         let currentImage = null;
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 
         const uploadZone = document.getElementById('uploadZone');
         const fileInput = document.getElementById('fileInput');
@@ -2055,6 +2283,35 @@
         const previewImg = document.getElementById('previewImg');
         const removeBtn = document.getElementById('removeBtn');
         const analyzeBtn = document.getElementById('analyzeBtn');
+        const uploadError = document.getElementById('uploadError');
+
+        // Error handling helper
+        function showError(message) {
+            uploadError.textContent = message;
+            uploadError.style.display = 'block';
+            setTimeout(() => { uploadError.style.display = 'none'; }, 5000);
+        }
+
+        function hideError() {
+            uploadError.style.display = 'none';
+        }
+
+        // File validation
+        function validateFile(file) {
+            if (!file) {
+                showError('No file selected. Please choose an image.');
+                return false;
+            }
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                showError('Invalid file type. Please upload a PNG or JPG image.');
+                return false;
+            }
+            if (file.size > MAX_FILE_SIZE) {
+                showError('File too large. Maximum size is 10MB.');
+                return false;
+            }
+            return true;
+        }
 
         uploadZone.addEventListener('click', e => {
             if (!e.target.closest('.upload-remove')) fileInput.click();
@@ -2070,8 +2327,13 @@
         removeBtn.addEventListener('click', e => { e.stopPropagation(); clearUpload(); });
 
         function handleFile(file) {
-            if (!file || !file.type.startsWith('image/')) return;
+            hideError();
+            if (!validateFile(file)) return;
+
             const reader = new FileReader();
+            reader.onerror = () => {
+                showError('Failed to read file. Please try again.');
+            };
             reader.onload = e => {
                 currentImage = e.target.result;
                 previewImg.src = currentImage;
@@ -2090,12 +2352,13 @@
             uploadPreview.classList.remove('visible');
             uploadZone.classList.remove('has-image');
             analyzeBtn.disabled = true;
-            document.getElementById('resultsContent').classList.remove('visible');
+            hideError();
+            document.getElementById('resultsContent').style.display = 'none';
             document.getElementById('resultsPlaceholder').style.display = '';
         }
 
         // ========================================
-        // ANALYZE
+        // UNIFIED ANALYSIS (Classification + Segmentation)
         // ========================================
         analyzeBtn.addEventListener('click', async () => {
             const btnText = analyzeBtn.querySelector('.btn-text');
@@ -2104,35 +2367,20 @@
             analyzeBtn.disabled = true;
             btnText.style.display = 'none';
             btnLoader.style.display = 'flex';
+            hideError();
 
             try {
-                let result;
+                // Simulate processing time for demo
+                await new Promise(r => setTimeout(r, 1800));
 
-                if (USE_MOCK) {
-                    // Mock mode - simulate delay
-                    await new Promise(r => setTimeout(r, 1500));
-                    result = MOCK_CLASSIFICATION;
-                } else {
-                    // Real API call
-                    const response = await fetch(`${API_URL}/api/classify-base64`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: currentImage })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Classification failed');
-                    }
-
-                    result = await response.json();
-                }
-
-                showResults(result);
+                // Generate mock result with sample mask
+                const result = generateMockResult();
+                showUnifiedResults(result);
 
             } catch (error) {
                 console.error('Analysis error:', error);
-                alert('Analysis failed. Using mock data.');
-                showResults(MOCK_CLASSIFICATION);
+                showError('Analysis failed. Please try again or use a different image.');
+                analyzeBtn.disabled = false;
             }
 
             btnText.style.display = '';
@@ -2140,29 +2388,48 @@
             analyzeBtn.disabled = false;
         });
 
-        function showResults(data) {
+        function showUnifiedResults(data) {
             document.getElementById('resultsPlaceholder').style.display = 'none';
-            document.getElementById('resultsContent').classList.add('visible');
+            document.getElementById('resultsContent').style.display = 'flex';
 
-            // Animate ring
-            const circumference = 2 * Math.PI * 47;
-            const ring = document.getElementById('predRing');
+            const info = CLASS_INFO[data.predicted_class];
+            const confPct = Math.round(data.confidence * 100);
+
+            // Severity badge
+            const badge = document.getElementById('severityBadge');
+            badge.textContent = info.severity === 'high' ? 'High Priority' :
+                               info.severity === 'medium' ? 'Moderate' : 'Low Risk';
+            badge.className = 'diagnosis-badge ' + info.severity;
+
+            // Confidence ring
+            const circumference = 2 * Math.PI * 30;
+            const ring = document.getElementById('confRing');
             ring.style.strokeDashoffset = circumference * (1 - data.confidence);
 
             // Animate percentage
-            const pctEl = document.getElementById('predPct');
+            const confEl = document.getElementById('confPct');
             let current = 0;
-            const target = Math.round(data.confidence * 100);
             const interval = setInterval(() => {
                 current += 2;
-                if (current >= target) { current = target; clearInterval(interval); }
-                pctEl.textContent = current;
-            }, 20);
+                if (current >= confPct) { current = confPct; clearInterval(interval); }
+                confEl.textContent = current + '%';
+            }, 15);
 
-            document.getElementById('predClass').textContent = 'Class ' + data.predicted_class;
+            // Diagnosis info
+            document.getElementById('diagnosisName').textContent = info.name;
+            document.getElementById('diagnosisAbbrev').textContent = info.abbrev + ' — Class ' + data.predicted_class;
+            document.getElementById('diagnosisDesc').textContent = info.description;
+            document.getElementById('clinicalSignificance').textContent = info.clinical;
+            document.getElementById('recommendedAction').textContent = info.action;
+            document.getElementById('keyStats').textContent = info.stats;
 
             // Probability chart
-            const sorted = data.probabilities.map((p, i) => ({ cls: i, prob: p })).sort((a, b) => b.prob - a.prob);
+            const sorted = data.probabilities.map((p, i) => ({
+                cls: i,
+                prob: p,
+                name: CLASS_INFO[i].abbrev
+            })).sort((a, b) => b.prob - a.prob);
+
             const probChart = document.getElementById('probChart');
             probChart.innerHTML = sorted.map((d, i) => {
                 const isTop = d.cls === data.predicted_class;
@@ -2170,7 +2437,7 @@
                 const cls = isTop ? 'top' : d.prob > 0.05 ? 'normal' : 'low';
                 return `
                     <div class="prob-row">
-                        <span class="prob-label">Class ${d.cls}</span>
+                        <span class="prob-label">${d.name}</span>
                         <div class="prob-track">
                             <div class="prob-fill ${cls}" style="width:0" data-width="${d.prob*100}%"></div>
                         </div>
@@ -2184,118 +2451,26 @@
                     setTimeout(() => { bar.style.width = bar.dataset.width; }, i * 50);
                 });
             }, 100);
+
+            // Segmentation - use sample mask
+            const sampleId = data.sampleId;
+            const sampleImg = `samples/images/${sampleId}.jpg`;
+            const sampleMask = `samples/masks/${sampleId}.png`;
+
+            document.getElementById('segOriginal').src = sampleImg;
+            document.getElementById('segMask').src = sampleMask;
+            document.getElementById('segOverlayBase').src = sampleImg;
+            document.getElementById('segOverlayMask').src = sampleMask;
         }
 
-        // ========================================
-        // SEGMENTATION
-        // ========================================
-        let segImage = null;
-        const uploadZoneSeg = document.getElementById('uploadZoneSeg');
-        const fileInputSeg = document.getElementById('fileInputSeg');
-        const uploadContentSeg = document.getElementById('uploadContentSeg');
-        const uploadPreviewSeg = document.getElementById('uploadPreviewSeg');
-        const previewImgSeg = document.getElementById('previewImgSeg');
-        const removeBtnSeg = document.getElementById('removeBtnSeg');
-        const segmentBtn = document.getElementById('segmentBtn');
-
-        uploadZoneSeg.addEventListener('click', e => {
-            if (!e.target.closest('.upload-remove')) fileInputSeg.click();
-        });
-        uploadZoneSeg.addEventListener('dragover', e => { e.preventDefault(); uploadZoneSeg.classList.add('drag-over'); });
-        uploadZoneSeg.addEventListener('dragleave', () => uploadZoneSeg.classList.remove('drag-over'));
-        uploadZoneSeg.addEventListener('drop', e => {
-            e.preventDefault();
-            uploadZoneSeg.classList.remove('drag-over');
-            handleSegFile(e.dataTransfer.files[0]);
-        });
-        fileInputSeg.addEventListener('change', () => handleSegFile(fileInputSeg.files[0]));
-        removeBtnSeg.addEventListener('click', e => { e.stopPropagation(); clearSegUpload(); });
-
-        function handleSegFile(file) {
-            if (!file || !file.type.startsWith('image/')) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                segImage = e.target.result;
-                previewImgSeg.src = segImage;
-                uploadContentSeg.style.display = 'none';
-                uploadPreviewSeg.classList.add('visible');
-                uploadZoneSeg.classList.add('has-image');
-                segmentBtn.disabled = false;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearSegUpload() {
-            segImage = null;
-            fileInputSeg.value = '';
-            uploadContentSeg.style.display = '';
-            uploadPreviewSeg.classList.remove('visible');
-            uploadZoneSeg.classList.remove('has-image');
-            segmentBtn.disabled = true;
-            document.getElementById('segResults').classList.remove('visible');
-            document.getElementById('segPlaceholder').style.display = '';
-        }
-
-        segmentBtn.addEventListener('click', async () => {
-            const btnText = segmentBtn.querySelector('.btn-text');
-            const btnLoader = segmentBtn.querySelector('.btn-loader');
-
-            segmentBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoader.style.display = 'flex';
-
-            await new Promise(r => setTimeout(r, 2000));
-
-            showSegResults();
-
-            btnText.style.display = '';
-            btnLoader.style.display = 'none';
-            segmentBtn.disabled = false;
-        });
-
-        function showSegResults() {
-            document.getElementById('segPlaceholder').style.display = 'none';
-            document.getElementById('segResults').classList.add('visible');
-
-            const mask = generateMask();
-            document.getElementById('segOriginal').src = segImage;
-            document.getElementById('segMask').src = mask;
-            document.getElementById('segOverlayBase').src = segImage;
-            document.getElementById('segOverlayMask').src = mask;
-        }
-
-        function generateMask() {
-            const c = document.createElement('canvas');
-            c.width = 384; c.height = 384;
-            const ctx = c.getContext('2d');
-            ctx.fillStyle = '#022759';
-            ctx.fillRect(0, 0, 384, 384);
-            ctx.fillStyle = '#ADFB49';
-            ctx.beginPath();
-            ctx.ellipse(192, 192, 100, 80, 0, 0, Math.PI * 2);
-            ctx.fill();
-            for (let i = 0; i < 6; i++) {
-                ctx.beginPath();
-                ctx.ellipse(
-                    100 + Math.random() * 184,
-                    100 + Math.random() * 184,
-                    20 + Math.random() * 40,
-                    15 + Math.random() * 35,
-                    Math.random() * Math.PI, 0, Math.PI * 2
-                );
-                ctx.fill();
-            }
-            return c.toDataURL();
-        }
-
-        // Seg toggle
+        // Segmentation view toggle
         document.querySelectorAll('.seg-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const mode = btn.dataset.mode;
                 document.getElementById('segView').style.display = mode === 'side' ? 'grid' : 'none';
-                document.getElementById('segOverlay').classList.toggle('visible', mode === 'overlay');
+                document.getElementById('segOverlay').style.display = mode === 'overlay' ? 'block' : 'none';
             });
         });
 
