@@ -1020,6 +1020,22 @@
             margin-top: 12px;
         }
 
+        /* GPU Notice */
+        .gpu-notice {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .gpu-notice a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        .gpu-notice a:hover { text-decoration: underline; }
+
         /* Diagnosis Card */
         .diagnosis-card {
             background: var(--bg-card);
@@ -1977,6 +1993,10 @@
                 </div>
 
                 <div class="results-content" id="resultsContent" style="display:none">
+                    <div class="gpu-notice">
+                        GPU not running. Try the model at <a href="https://huggingface.co/pcapdevila/deepbear-classification" target="_blank">huggingface.co/pcapdevila/deepbear-classification</a>
+                    </div>
+
                     <!-- Classification Result -->
                     <div class="diagnosis-card" id="diagnosisCard">
                         <div class="diagnosis-header">
